@@ -7,6 +7,7 @@ steps:
       - CLOUDSDK_COMPUTE_REGION=${_REGION}
       - CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}
       - KUBECONFIG=/workspace/.kube/config
+      - USE_GKE_GCLOUD_AUTH_PLUGIN=false
     args:
       - cluster-info
 
