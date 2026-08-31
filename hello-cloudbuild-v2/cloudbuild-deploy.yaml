@@ -1,15 +1,18 @@
 steps:
   - id: get-kube-config
     dir: hello-cloudbuild-v2
-    name: gcr.io/cloud-builders/kubectl
+    name: gcr.io/cloud-builders/gcloud
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud container clusters get-credentials cluster-1 --zone us-central1-c
     env:
       - CLOUDSDK_CORE_PROJECT=$PROJECT_ID
       - CLOUDSDK_COMPUTE_REGION=${_REGION}
       - CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}
       - KUBECONFIG=/workspace/.kube/config
       - USE_GKE_GCLOUD_AUTH_PLUGIN=false
-    args:
-      - cluster-info
 
   - id: deploy
     dir: hello-cloudbuild-v2
