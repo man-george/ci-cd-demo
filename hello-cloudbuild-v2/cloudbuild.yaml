@@ -31,10 +31,7 @@ steps:
     dir: hello-cloudbuild-v2
     name: cloudnatived/helm-cloudbuilder
     entrypoint: sh
-    args:
-      - -c
-      - |
-        helm template ./k8s/demo/ | kubeval
+    args: ['-c', 'helm template ./k8s/demo/ | kubeval --schema-location https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master']
 
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/demo/demo:$COMMIT_SHA
