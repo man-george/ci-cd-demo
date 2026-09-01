@@ -12,27 +12,29 @@ steps:
       - CLOUDSDK_COMPUTE_REGION=${_REGION}
       - CLOUDSDK_CONTAINER_CLUSTER=${_CLOUDSDK_CONTAINER_CLUSTER}
       - KUBECONFIG=/workspace/.kube/config
-      - USE_GKE_GCLOUD_AUTH_PLUGIN=false
 
   - id: deploy
     dir: hello-cloudbuild-v2
-    name: cloudnatived/helm-cloudbuilder
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:latest
     env:
       - KUBECONFIG=/workspace/.kube/config
+    entrypoint: 'bash'
     args:
-      - helm
-      - upgrade
-      - --install
-      - --create-namespace
-      - ${TAG_NAME}-demo
-      - --namespace=${TAG_NAME}-demo
-      - --values
-      - k8s/demo/${TAG_NAME}-values.yaml
-      - --set
-      - container.image=${_REGION}-docker.pkg.dev/$PROJECT_ID/demo/demo
-      - --set
-      - container.tag=${COMMIT_SHA}
-      - ./k8s/demo
+      - '-c'
+      - |
+        # 1. Install Helm
+        curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+        # 2. Get GKE cluster credentials (the auth plugin is pre-configured in this image)
+        gcloud container clusters get-credentials cluster-1 --zone us-central1-c
+
+        # 3. Perform Helm Upgrade
+        helm upgrade --install --create-namespace staging-demo \
+          --namespace=staging-demo \
+          --values k8s/demo/staging-values.yaml \
+          --set container.image=us-central1-c-docker.pkg.dev/ci-cd-test-001/demo/demo \
+          --set container.tag=$COMMIT_SHA \
+          ./k8s/demo
 
 options:
   logging: CLOUD_LOGGING_ONLY
